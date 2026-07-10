@@ -1,9 +1,13 @@
 {
   "name": "telegram-bot",
   "version": "1.0.0",
+  "description": "Redat AI Telegram Bot",
   "type": "commonjs",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "ts-node index.ts"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node index.ts"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",

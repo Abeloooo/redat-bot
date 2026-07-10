@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "target": "ES2020",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./",
     "esModuleInterop": true,
     "strict": true,
-    "types": ["node"],
     "skipLibCheck": true
-  }
+  },
+  "include": [
+    "index.ts",
+    "database.ts",
+    "knowledge/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
