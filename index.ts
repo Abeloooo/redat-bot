@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import OpenAI from "openai";
 import cron from "node-cron";
 import fs from "fs";
+import http from "http";
 
 import {
     getUser,
@@ -23,6 +24,7 @@ import {
 import {
     extractPDF
 } from "./knowledge/processor";
+import { getPort } from "./port";
 
 
 dotenv.config();
@@ -919,6 +921,17 @@ ctx.reply(
 // ===============================
 
 
+const port = getPort();
+
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Redat bot is running");
+});
+
+server.listen(port, () => {
+    console.log(`🌐 Health server listening on port ${port}`);
+});
+
 bot.launch();
 
 
@@ -931,13 +944,11 @@ console.log(
 
 
 
-process.once(
-"SIGINT",
-()=>bot.stop("SIGINT")
-);
+const shutdown = async (signal: NodeJS.Signals) => {
+    console.log(`Received ${signal}, shutting down...`);
+    await bot.stop(signal);
+    server.close(() => process.exit(0));
+};
 
-
-process.once(
-"SIGTERM",
-()=>bot.stop("SIGTERM")
-);
+process.once("SIGINT", shutdown);
+process.once("SIGTERM", shutdown);
