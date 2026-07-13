@@ -9,8 +9,10 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const openai_1 = __importDefault(require("openai"));
 const node_cron_1 = __importDefault(require("node-cron"));
 const fs_1 = __importDefault(require("fs"));
+const http_1 = __importDefault(require("http"));
 const database_1 = require("./database");
 const processor_1 = require("./knowledge/processor");
+const port_1 = require("./port");
 dotenv_1.default.config();
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -322,7 +324,20 @@ Support English and Amharic.
 // ===============================
 // START BOT
 // ===============================
+const port = (0, port_1.getPort)();
+const server = http_1.default.createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Redat bot is running");
+});
+server.listen(port, () => {
+    console.log(`🌐 Health server listening on port ${port}`);
+});
 bot.launch();
 console.log("🤖 Redat is running");
-process.once("SIGINT", () => bot.stop("SIGINT"));
-process.once("SIGTERM", () => bot.stop("SIGTERM"));
+const shutdown = async (signal) => {
+    console.log(`Received ${signal}, shutting down...`);
+    await bot.stop(signal);
+    server.close(() => process.exit(0));
+};
+process.once("SIGINT", shutdown);
+process.once("SIGTERM", shutdown);

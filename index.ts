@@ -58,6 +58,18 @@ new Telegraf<Context>(
 
 
 
+bot.catch((err) => {
+    console.error("Telegraf caught error:", err);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+
+process.on("uncaughtException", (error) => {
+    console.error("Uncaught Exception:", error);
+});
+
 const ai =
 new OpenAI({
 
@@ -617,9 +629,9 @@ cron.schedule(
 
 async()=>{
 
-
-const reminders =
-getPendingReminders();
+    try {
+        const reminders =
+        getPendingReminders();
 
 
 
@@ -627,24 +639,29 @@ for(
 const reminder of reminders as any[]
 ){
 
+            try {
+                await bot.telegram.sendMessage(
 
-await bot.telegram.sendMessage(
+                    reminder.telegram_id,
 
-reminder.telegram_id,
+                    `🔔 Reminder:\n${reminder.task}`
 
-`🔔 Reminder:\n${reminder.task}`
-
-);
-
-
-
-completeTask(
-reminder.id
-);
+                );
 
 
-}
+                completeTask(
+                    reminder.id
+                );
+            }
+            catch(error){
+                console.error("Failed to send reminder:", error, reminder);
+            }
 
+        }
+    }
+    catch(error){
+        console.error("Reminder cron failed:", error);
+    }
 
 });
 
